@@ -16,8 +16,8 @@ beta = 1; % incentive coefficient, #don't know why it is used #tune-it
 
 % initialize wolves [position, iterations, wolves]
 % or [positions, wolves]
-xrange = 20;
-yrange = 20;
+xrange = 15;
+yrange = 15;
 for i = 1:Nw
     Wstart(:,i)= [(rand-.5)*xrange
                   (rand-.5)*yrange];
