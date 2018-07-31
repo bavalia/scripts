@@ -1,0 +1,16 @@
+function [theta] = rangle(num, den, s)
+numAng = sum(angle(s-num));
+denAng = sum(angle(s-den));
+ang = numAng-denAng;
+theta = mod((ang+pi),2*pi) -pi;
+end
+
+function = plotfreqres(Gs)
+x = logspace(-1,100);
+y = subs(Gs,s,i*x);
+figure(1);
+subplot(211);
+plot(x,db(abs(y)));
+subplot(212);
+plot(x,angle())
+end

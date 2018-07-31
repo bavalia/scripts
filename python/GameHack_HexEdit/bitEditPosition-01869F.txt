@@ -1,0 +1,25 @@
+File        1695    9923    1699
+622,3140:   6E02    00      440C
+422,3140:   A601    01
+511         ff01
+65535       ffff
+00          0000
+65535,3340  ffff            0C0D
+65535,65535 ffff            ffff
+
+
+
+position of Cash = 1695/6
+position of hunie= 1699/0
+
+
+0	0000
+65535	ffff
+65735	c700 01
+81435	1b3e 01
+89335	f75c 01
+97735	c77d 01
+99999	9f86 01 *max possible
+
+numbers are written in reverse.
+hex(99999)=‘0x1869f’

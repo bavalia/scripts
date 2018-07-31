@@ -1,0 +1,3 @@
+This is a file of ascii characters. 
+
+Why can't it be seen by the people?

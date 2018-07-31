@@ -1,0 +1,12 @@
+#!/usr/bin/python
+import os
+with open("dlist.txt") as f:
+        for line in f:
+                #<do something with line>
+                cmd = "youtube-dl -f mp4 " + line
+                print cmd
+                while os.system(cmd):
+                        print line + "not completed"
+                ofile=open("downloaded","a")
+                ofile.write("completed " + line)
+                ofile.close()

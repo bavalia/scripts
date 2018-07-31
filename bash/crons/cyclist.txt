@@ -1,0 +1,9 @@
+http://www.gavrila.net/data/Daimler/iv16-li-flohr-gavrila-etal/tdcb_leftImg8bit_train.tar.gz 
+http://www.gavrila.net/data/Daimler/iv16-li-flohr-gavrila-etal/tdcb_leftImg8bit_test.tar.gz 
+http://10w.gavrila.net/data/Daimler/iv16-li-flohr-gavrila-etal/tdcb_leftImg8bit_valid.tar.gz 
+http://www.gavrila.net/data/Daimler/iv16-li-flohr-gavrila-etal/tdcb_leftImg8bit_NonVRU.tar.gz 
+http://www.gavrila.net/data/Daimler/iv16-li-flohr-gavrila-etal/tdcb_disparity_train.tar.gz 
+http://www.gavrila.net/data/Daimler/iv16-li-flohr-gavrila-etal/tdcb_disparity_test.tar.gz 
+http://www.gavrila.net/data/Daimler/iv16-li-flohr-gavrila-etal/tdcb_disparity_valid.tar.gz 
+http://www.gavrila.net/data/Daimler/iv16-li-flohr-gavrila-etal/tdcb_disparity_NonVRU.tar.gz
+

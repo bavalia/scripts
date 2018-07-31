@@ -1,0 +1,11 @@
+ls: cannot access archive.zip.fa: No such file or directory
+Traceback (most recent call last):
+  File "vm_main.py", line 33, in <module>
+    import main
+  File "/tmp/vmuser_kajmaujuxi/main.py", line 2, in <module>
+    import studentMain
+  File "/tmp/vmuser_kajmaujuxi/studentMain.py", line 6, in <module>
+    if(subprocess.check_call(['bash', 'bashShell.sh']) != 0):
+  File "/usr/lib/python2.7/subprocess.py", line 540, in check_call
+    raise CalledProcessError(retcode, cmd)
+subprocess.CalledProcessError: Command '['bash', 'bashShell.sh']' returned non-zero exit status 2

@@ -1,0 +1,66 @@
+#! /bin/bash
+
+# give full address
+LOGFILE='/home/swaayatt/cron/.at_reboot.log'
+cd /home/swaayatt
+
+echo -e "CRON at_reboot ATTEMPTED @ $(date) \u02e5" >> $LOGFILE
+sleep 2m
+
+
+echo "Downloading files ... "
+
+Dir='/home/swaayatt/Documents/DataSets/DataForSelfDrivingCar/PedestrianDetection/CaltechBenchmark'
+#Domains='www.vision.caltech.edu,www.vision.caltech.edu.s3-us-west-2.amazonaws.com,caltech.edu,amazonaws.com'
+wget -c -P $Dir \
+  http://www.vision.caltech.edu.s3-us-west-2.amazonaws.com/Image_Datasets/CaltechPedestrians/datasets/USA/annotations.zip \
+  http://www.vision.caltech.edu.s3-us-west-2.amazonaws.com/Image_Datasets/CaltechPedestrians/datasets/USA/set00.tar \
+  http://www.vision.caltech.edu.s3-us-west-2.amazonaws.com/Image_Datasets/CaltechPedestrians/datasets/USA/set01.tar \
+  http://www.vision.caltech.edu.s3-us-west-2.amazonaws.com/Image_Datasets/CaltechPedestrians/datasets/USA/set02.tar \
+  http://www.vision.caltech.edu.s3-us-west-2.amazonaws.com/Image_Datasets/CaltechPedestrians/datasets/USA/set03.tar \
+  http://www.vision.caltech.edu.s3-us-west-2.amazonaws.com/Image_Datasets/CaltechPedestrians/datasets/USA/set04.tar \
+  http://www.vision.caltech.edu.s3-us-west-2.amazonaws.com/Image_Datasets/CaltechPedestrians/datasets/USA/set05.tar \
+  http://www.vision.caltech.edu.s3-us-west-2.amazonaws.com/Image_Datasets/CaltechPedestrians/datasets/USA/set06.tar \
+  http://www.vision.caltech.edu.s3-us-west-2.amazonaws.com/Image_Datasets/CaltechPedestrians/datasets/USA/set07.tar \
+  http://www.vision.caltech.edu.s3-us-west-2.amazonaws.com/Image_Datasets/CaltechPedestrians/datasets/USA/set08.tar \
+  http://www.vision.caltech.edu.s3-us-west-2.amazonaws.com/Image_Datasets/CaltechPedestrians/datasets/USA/set09.tar \
+  http://www.vision.caltech.edu.s3-us-west-2.amazonaws.com/Image_Datasets/CaltechPedestrians/datasets/USA/set10.tar
+Status1=$?
+if [ $Status1 -eq 0 ] 
+then  
+  touch /home/swaayatt/cron/caltech
+fi
+
+
+
+### S3 bucket folder could not be downloaded with wget, so manual link for each file above  
+#wget -c -P $Dir -D $Domains -r -np -nH -R index.html* --cut-dirs=4 -i input.file \
+  #http://www.vision.caltech.edu/Image_Datasets/CaltechPedestrians/datasets/USA/
+
+
+Dir='/home/swaayatt/Documents/DataSets/DataForSelfDrivingCar/PedestrianDetection/Daimler/monoDetection'
+wget -c -P $Dir \
+  http://www.lookingatpeople.com/data/Daimler/pami09-enzweiler-gavrila/TrainingData.tar.gz \
+  http://www.lookingatpeople.com/data/Daimler/pami09-enzweiler-gavrila/TestData_part1.tar.gz \
+  http://www.lookingatpeople.com/data/Daimler/pami09-enzweiler-gavrila/TestData_part2.tar.gz \
+  http://www.lookingatpeople.com/data/Daimler/pami09-enzweiler-gavrila/TestData_part3.tar.gz \
+  http://www.lookingatpeople.com/data/Daimler/pami09-enzweiler-gavrila/TestData_part4.tar.gz \
+  http://www.lookingatpeople.com/data/Daimler/pami09-enzweiler-gavrila/TestData_part5.tar.gz
+Status2=$?
+if [ $Status2 -eq 0 ] 
+then  
+  touch /home/swaayatt/cron/monoDetection
+fi
+
+Status3=0
+
+STATUS=$(($Status1 + $Status2 + $Status3))
+echo -e "CRON at_reboot COMPLETED @ $(date) \u02e9 : $STATUS = $Status1 $Status2 $Status3 " >> $LOGFILE
+if [ $STATUS -ne 0 ] 
+then  
+  bash -c 'sleep 15m ; bash /home/swaayatt/cron/at_reboot.sh' & 
+fi
+
+cd -
+echo "### Done @$(date) ###"
+

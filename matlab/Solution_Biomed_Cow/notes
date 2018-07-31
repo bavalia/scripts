@@ -1,0 +1,145 @@
+parturient paresis of cows, paper
+
+Feedback linearization philosophy of nonlinear control theory, 
+Closed form solution 
+Global stability of the closed loop system is always guaranteed 
+ 
+2 Approaches: (1) Classical PID controller, (2) linear Quadratic Regulator 
+ 
+Output = [Dx2 x2] --> 0
+
+
+#Flie: Main.m
+
+Parameters;
+Medication_need;
+save X0
+
+Parameters;
+load X0;
+T_sim
+
+
+#Parameters.m
+global r Vcl Vol alpha_1,.,.,.,alpha_4 eta dt z1_0 z2_0 A1 A2 Ki Kp x1_alert=-.03 
+
+dt = 30/(24*60*60) % 30 sec, unit = day
+
+% Linear system
+X_nom = [0 0]; % nominal state % linearised around [0 0]
+[A ,B] = Linear_sys(X_nom) %function to check
+
+% Dynamic inverse
+gita=0.6 (damping ratio) 
+omega_n=0.8 % random also possible
+
+% Optimal Control
+Q = [1.1 0; 0 1.9e-3]
+R = .099
+[K,S,E] = lqr(A,B,Q,R)
+
+#Linear_sys.m % function [A0, B0] = Linear_sys(X_nom)
+[f, g1, g2] = Sub_fun(X_nom) % sub function 
+[df_dx1, dg1_dx1, dg2_dx2] = Sub_fun_der(X_nom);
+B0 = [ eta  0 ]';
+A0 = [  dF1_dx1   dF1_dx2 
+    dF2_dx1   dF2_dx2  ];
+
+#Sub_fun.m % function [f, g1, g2] = Sub_fun(X) %evaluate at X
+if (x1<0) 
+f = (1/12)*(alpha_1 + alpha_2*z1)*(alpha_3 + alpha_4*z1);
+else f =1; end;
+g1 = A1*tanh(-Kp*x1/A1);
+g2 = A2*tanh(z2/A2);
+
+#Sub_fun_der.m % [df_dx1, dg1_dx1, dg2_dx2] = Sub_fun_der(X)
+df_dx1 = 
+dg1_dx1 = 
+dg2_dx2 = 
+
+
+#Medication_need.m
+x1_0 = 0;
+x2_min = - (A2*atanh(Vcl/A2) - A2*atanh(Vcl_0/A2));
+x2_0 = Random(0.8*x2_min, 1.1*x2_min);
+X(:,1) = [  x1_0
+            x2_0  ]; % initialization of X(0)
+Loop on k, 0 to k, dt update in time, 
+if X(1,k)<x1_alert; break; start medication; end
+update X(:,k+1)=State(X(:,k),0) % function to update state
+Loop end
+save X0 = X(:,k)
+
+#State.m function X_1 = State(X, U) % RK4 integration to update state
+XX_0 = [ X; U ]
+[T, XX_1] = rk4('State_fun', 0, dt, XX_0); % one step RK4 on State_fun
+X_1 = XX_1(1:2, 2);
+
+#State_fun function XX_dot = State_fun(t, XX)
+X = XX(1:2,1);
+u = XX(3,1);
+x1 = X(1);
+X_dot = [  F1(X) + eta*u   % F1 function to update x1
+          -Ki*x1  ];
+XX_dot = [  X_dot
+          zeros(1,1)  ];   % just to make input output dimention same
+
+#F1 F1_X = F1(X)
+[f, g1, g2] = Sub_fun(X);
+F1_X = (1/Vol) * (g1 + f*g2 - Vcl);
+
+
+%% start medication simulation
+T_Sim
+
+#T_Sim % simulate under medication
+t0 = 0;     % Initial time
+tf = 2;     % Final time
+N = floor((tf - t0)/dt) + 1;    % Total no. of time steps required
+t(:,1) = t0;
+X(:,1) = X0;    % Initial state
+t_cut = 1/24; % Checking at every 1 hr interval
+sensor = 1;     % 1: Need for medication, 0: No need for medication
+Loop on k for 1:N-1  % as final update will be on k+1=N for tf=2
+every hour check for medication; sensor = Check_Medication(X(:,k));
+if (sensor =1)
+  u(:,k) = Control_dyn_inv(X(:,k));  % function to calculate DI control
+  X(:,k+1) = State(X(:,k), u(:,k));
+elseif (sensor == 0)
+  u(:,k) = 0;     % Needed to program this way to plot u
+  X(:,k+1) = State(X(:,k), u(:,k));   
+end
+Loop end
+
+#Check_Medication answer = Check_Medication(X0); 
+% simulate for 2 days, if x1 drops below x1_alert, continue medication
+X(:,1) = X0; %local
+t(:,1) = 0;  %local
+For k=1:N-1; X(:,k+1) = State(X(:,k), 0); if (X(1,k) < x1_alert); answer=1; end;end
+
+#Control_dyn_inv.m u = Control_dyn_inv(X)
+x1 = X(1);
+x2 = X(2);
+%u = -(1/eta) * (F1(X) + 2*gita*omega_n*x1 - omega_n^2*x2/Ki);
+u_0 = -(1/eta) * (F1(X) - A_1*X);
+u_til = -(1/eta) * (A_1*X + 2*gita*omega_n*x1 - omega_n^2*x2/Ki);
+u = u_0 + u_til;
+
+#Control_opt.m function u = control_opt(X)
+u_0   = -(1/eta) * (F1(X) - A_1*X);
+u_til = -K*X;
+u = u_0 + u_til;
+
+#Control_lin.m function u = control_lin(X)
+u = u_til = -(1/eta) * (A_1*X + 2*gita*omega_n*x1 - omega_n^2*x2/Ki);
+
+%% Plot_fig
+#Plot.fig.m
+tu = t(:, 1:N-1);
+t = t*24;
+tu = tu*24; % convert time unit to hour scale
+
+%% #to-do comparision files not explored yet
+
+T_sim_compare;  % Comparison with linear control
+Plot_fig_compare;

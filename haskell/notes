@@ -1,0 +1,51 @@
+ghci	# interective console for ghc haskell
+
+#online learning resaurces:
+http://learnyouahaskell.com/chapters
+http://book.realworldhaskell.org/read/
+	http://stackoverflow.com/questions/1012573/getting-started-with-haskell
+	https://wiki.haskell.org/H-99:_Ninety-Nine_Haskell_Problems
+
+#ghci
+	:l myFunctions	# to load myFunctions.hs file
+	:r 				# to reload current script
+	:t 'a'			# gives type of data
+	it				# to refer to the last answer
+	:set prompt "ghci> "	# to set prompt fix as given
+	infix function	# ==, /=, +, -, *, **, ^, /, etc
+	5 == 5			# True , equality comparision
+	5 /= 5			# False , not equality comparision 
+	5 == True		# error!!, only same types can be compared
+	92 `div` 10 == div 92 10	# divide /, or quot
+	-- this is comment
+	++				# list concatenation join "hello"++" world", iterates through whole list
+	'a':["pple"] 				# 'h':"hello", cons operator, adds to front, instantaneous
+	"hello world" !! 4 	# returns 'o'; indexing in list, starting with 0
+	[3,4,3] > [3,4,2] 	# returns True; lists are compared lexographicaly
+	head, tail, init, last	# list element selection operatior
+	fst, snd			# in size 2 tuple 
+	take, drop 	# slicing list
+	null [list]		# to check if list is null
+	maximum, minimun # max min in list
+	sum, product 	# of list
+	'l' elem "hello" 	# returns true, if element
+	range 		# [1..10],[3,1..20] ['a'..'m'],[20,19..1, take 24 [13,26..]
+	cycle, repeat, replicate
+	[x*2 | x <- [1..10],x*2 >= 10]	# list comprehension like set
+	[ x*y | x <- [2,5,10], y <- [8,10,11], x*y>30]
+	zip [5,3,2,6,2,7,2,5,4,6,6] 	#["im","a","turtle"]
+	type = Bool,Char,Int(short bounded),Integer(unbound),Float,Double(double prec. float), Ordering(EQ,LT,GT), String=[Char]
+	:: 			# type annotation, eg.read "True" :: Bool
+	type variable = a	# to be used to describe similar type
+	type class = Eq(==,/=), Num, Fractional, Integral(Int,Integer), Floating(not in Ord,Float,Double,complex),RealFloat(mem of Ord,no complex), Foldable(list,tuple), Ord(>,>=), Show, Read, Enum(sequence), Bounded(eg. minBound :: Int)
+	fromIntegral a	# converts Integral to general Num, eg. fromIntegral (length [1,2,3,4]) + 3.2
+	compare a b # gives comparision GT,EQ,LT
+	show a		# converts to string, as showable 
+	'\00':"hello" 	# gives "\NULhello", characters by ascii decimal code(hex '\x00)
+	error "error message" 	# shows runtime error with message
+	where 		# to define formulas in a funcion across conditions at the end, 
+	let .. in.. # function as expression, or definition, 
+				# eg. [let a = 100; b = 200; c = 300 in a*b*c]
+				# (let (a,b,c) = (1,2,3) in a+b+c) * 100 
+				# calcBmis xs = [bmi | (w, h) <- xs, let bmi = w / h ^ 2]
+	case (exp) of (pattern) -> (result) ... 

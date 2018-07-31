@@ -1,0 +1,11 @@
+libdc1394 error: Failed to initialize libdc1394
+Traceback (most recent call last):
+  File "vm_main.py", line 33, in <module>
+    import main
+  File "/tmp/vmuser_qyrxmoibfd/main.py", line 2, in <module>
+    import studentMain
+  File "/tmp/vmuser_qyrxmoibfd/studentMain.py", line 122, in <module>
+    import tt
+  File "/tmp/vmuser_qyrxmoibfd/tt.py", line 26, in <module>
+    print ("length of file is: "+len(files))
+TypeError: cannot concatenate 'str' and 'int' objects

@@ -1,0 +1,155 @@
+'''
+This is the only code that we inject into the vm. It handles serialization to
+give the submission a clean function syntax.
+
+Note that this class is available to be tampered with by the submission code,
+so its output is sanitized outside the vm.
+'''
+
+import pickle
+import json
+import os
+import re
+import struct
+import sys
+
+# This separates the regular stdout, and the json data for the test cases
+# that follows. Note that this is not a security risk. If this string
+# happened by mistake in regular output, it would just make the output
+# "wrong". It is safely parsed.
+STDOUT_TESTS_SEPARATOR = "END-OF-STDOUT-93jf0sfjdvj9zxvjakwpeij"
+
+if __name__ == '__main__':
+    unpickler = pickle.Unpickler(sys.stdin)
+
+    # Configuration file is the first pickle sent over wire
+    config = unpickler.load()
+
+    if config['environment'] == 'python':
+        # The python execution is a great first-class citizen since we can 
+        # call the code from right within this vm.
+    
+        # This runs the user code that is defined at the top level.
+        import main
+    
+        # Read test cases from the stdin 
+        test_results = []
+        while True:
+            try:
+                data = unpickler.load()
+            except EOFError:
+                break
+    
+            func_name = data['func_name']
+            params = data['params']
+            
+            methodToCall = getattr(main, func_name)
+            result = methodToCall(**params)
+    
+            test_results.append(result)
+    
+        # We send back length-prefixed json strings. This happens after all the
+        # code has executed.
+        sys.stdout.write(STDOUT_TESTS_SEPARATOR)
+    
+        for result in test_results:
+            json_string = json.dumps(result)
+            packed_len = struct.pack('>L', len(json_string))
+            sys.stdout.write(packed_len + json_string)
+
+    elif config['environment'] == 'python3':
+        # Read test cases from stdin and write to temp file.
+        # Buffering of stdin means that trying to unpickle one
+        # object and send the rest to the downstream process
+        # simply doesn't work.
+        with open('test_cases', 'wb') as f:
+            pickler = pickle.Pickler(f)
+            while True:
+                try:
+                    pickler.dump(unpickler.load())
+                except EOFError:
+                    break
+
+        # Simply launch into python3 altogether at this point. Our python3
+        # driver will do the rest.
+        #
+        # Note: we have to EXPLICITLY pass the program name as the first arg;
+        # it's not automatically done for us. Otherwise, Python will think
+        # that our script is the name of the Python executable itself and that
+        # there are no scripts to run. See:
+        # http://stackoverflow.com/questions/13439938/execlp-in-python
+        os.execlp('python3', 'python3', 'vm_main3.py')
+
+    elif config['environment'] == 'java':
+        # The Java environment is a little tricky...
+        # TODO we do not support unit tests for Java
+        
+        # This is basically a simple build system for Java.
+        # First, compile all java files. We find all and call javac once
+        # (it is quite expensive to call, like 0.5 seconds).
+        java_files = []
+        for dirname, _, filenames in os.walk('.'):
+            for filename in filenames:
+                if re.search(r"\.java$", filename):
+                    path = os.path.join(dirname, filename)
+                    java_files.append(path)
+
+        # TODO support file names with spaces
+        os.system("javac " + ' '.join(java_files))
+
+        os.system("java -Xms20M -Xmx70M " + config['java_mainclass'])
+
+    elif config['environment'] == 'c_simple':
+        # This is the C environment.
+        
+        # This is basically a simple build system for C. We will call gcc
+        # with all the c files in the directory.
+        c_files = []
+        for dirname, _, filenames in os.walk('.'):
+            for filename in filenames:
+                if re.search(r"\.c$", filename):
+                    path = os.path.join(dirname, filename)
+                    c_files.append(path)
+
+        # TODO support file names with spaces
+        os.system("gcc " + ' '.join(c_files))
+
+        os.system("./a.out")
+        sys.stdout.write(STDOUT_TESTS_SEPARATOR)
+
+    elif config['environment'] == 'c_cuda':
+        # This is the Cuda C environment, same as C but uses the Nvidia
+        # compiler.
+        
+        # This is basically a simple build system for C. We will call nvcc
+        # with all the c files in the directory.
+        c_files = []
+        for dirname, _, filenames in os.walk('.'):
+            for filename in filenames:
+                if re.search(r"\.cu?$", filename):
+                    path = os.path.join(dirname, filename)
+                    c_files.append(path)
+
+        # TODO support file names with spaces
+        os.system("PATH=${PATH}:/usr/local/cuda/bin nvcc -arch=sm_20 " + ' '.join(c_files))
+
+        os.system("LD_LIBRARY_PATH=/usr/local/cuda/lib64 ./a.out")
+        sys.stdout.write(STDOUT_TESTS_SEPARATOR)
+
+    elif config['environment'] == 'octave':
+        # This is the Octave environment. Runs a single main.m file.
+
+        os.system("octave -q main.m")
+        sys.stdout.write(STDOUT_TESTS_SEPARATOR)
+
+    elif config['environment'] == 'R':
+        # This is the R environment. Runs a single main.r file.
+
+        os.system("R --vanilla --slave < main.r")
+        sys.stdout.write(STDOUT_TESTS_SEPARATOR)
+
+    elif config['environment'] == 'nodejs':
+        # This is the nodejs environment. Runs a single main.js file
+        
+        os.system("/bin/sh run_node.sh main.js")
+        sys.stdout.write(STDOUT_TESTS_SEPARATOR)
